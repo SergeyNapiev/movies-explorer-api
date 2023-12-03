@@ -40,26 +40,27 @@ const createUser = (req, res, next) => {
     });
 };
 
-const updateUser = (req, res, next) => {
-  const userId = req.user._id;
-  const { name, email } = req.body;
+const updateUser = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { name, email } = req.body;
 
-  userModel.findByIdAndUpdate(
-    userId,
-    { name, email },
-    { new: true, runValidators: true },
-  )
-    .orFail(new mongoose.Error.DocumentNotFoundError())
-    .then((user) => res.status(HTTP_STATUS.OK).send(user))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.DocumentNotFoundError) {
-        next(new NotFoundError('Пользователь по указанному _id не найден'));
-      } else if (err instanceof mongoose.Error.ValidationError) {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
-      } else {
-        next(err);
-      }
-    });
+    const user = await userModel.findByIdAndUpdate(
+      userId,
+      { name, email },
+      { new: true, runValidators: true },
+    ).orFail(new mongoose.Error.DocumentNotFoundError());
+
+    res.status(HTTP_STATUS.OK).send(user);
+  } catch (err) {
+    if (err instanceof mongoose.Error.DocumentNotFoundError) {
+      next(new NotFoundError('Пользователь по указанному _id не найден'));
+    } else if (err instanceof mongoose.Error.ValidationError) {
+      next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+    } else {
+      next(err);
+    }
+  }
 };
 
 const login = (req, res, next) => {

@@ -40,7 +40,8 @@ const createMovie = (req, res, next) => {
 };
 
 const getMovies = (req, res, next) => {
-  movieModel.find({})
+  const owner = req.user._id;
+  movieModel.find({ owner })
     .then((movies) => res.status(HTTP_STATUS.OK).send(movies))
     .catch((err) => {
       next(err);
