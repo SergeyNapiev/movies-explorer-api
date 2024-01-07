@@ -55,7 +55,7 @@ const deleteMovie = (req, res, next) => {
       if (!movie.owner.equals(req.user._id)) {
         throw new ForbiddenError('У вас нет прав на удаление этого фильма');
       }
-      return movieModel.findOneAndDelete(req.params._id);
+      return movieModel.findOneAndDelete({ _id: req.params._id });
     })
     .then((deletedmovie) => {
       res.status(HTTP_STATUS.OK).send(deletedmovie);
